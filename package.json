@@ -1,9 +1,39 @@
 {
-  "name": "babel-plugin-transform-export-object-properties",
+  "name": "babel-plugin-codemod-named-export-declarations",
   "version": "0.0.0",
-  "description": "Transform export object properties to atomic export declarations",
-  "main": "index.js",
-  "repository": "git@github.com:infctr/babel-plugin-transform-export-object-properties.git",
+  "description": "Transform export object literals to single named export declarations",
+  "main": "src/index.js",
+  "repository": "git@github.com:infctr/babel-plugin-codemod-named-export-declarations.git",
   "author": "infctr <infctr@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "prettier": {
+    "printWidth": 80,
+    "eslintIntegration": true,
+    "semi": true,
+    "singleQuote": true
+  },
+  "peerDependencies": {
+    "@babel/core": "^7.0.0-beta.56"
+  },
+  "devDependencies": {
+    "babel-eslint": "^8.2.6",
+    "eslint": "^5.2.0",
+    "eslint-config-airbnb-base": "^13.0.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-import": "^2.13.0",
+    "eslint-plugin-jest": "^21.18.0",
+    "eslint-plugin-prettier": "^2.6.2",
+    "eslint-plugin-types": "^1.0.2",
+    "prettier": "^1.14.0"
+  },
+  "dependencies": {
+    "@babel/plugin-syntax-typescript": "^7.0.0-beta.56",
+    "better-log": "^1.3.3"
+  },
+  "keywords": [
+    "babel-plugin",
+    "babel-codemod",
+    "transform",
+    "exports"
+  ]
 }
