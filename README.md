@@ -38,14 +38,7 @@ Run transforms on your files with excellent [babel-codemod](https://github.com/s
 ./node_modules/.bin/codemod -p babel-plugin-codemod-named-export-declarations script.js
 ```
 
-The plugin inherits `@babel/plugin-syntax-typescript` for Typescript support. Add syntax plugins to parse JSX:
-
-```sh
-./node_modules/.bin/codemod \
-  -p babel-plugin-codemod-named-export-declarations \
-  -p babel-plugin-syntax-jsx \
-  component.tsx
-```
+`babel-codemod` enables other plugins for parsing files out of the box (eg. jsx, typescript).
 
 ### Via Node API
 

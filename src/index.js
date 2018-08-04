@@ -1,7 +1,5 @@
 require('better-log/install');
 
-const babelPluginSyntaxTypescript = require('@babel/plugin-syntax-typescript');
-
 module.exports = babel => {
   const { types: t } = babel;
 
@@ -70,7 +68,6 @@ module.exports = babel => {
         node.id.name === name;
 
   return {
-    inherits: babelPluginSyntaxTypescript.default,
     visitor: {
       ExportNamedDeclaration: path => {
         const program = path.findParent(p => p.isProgram());
