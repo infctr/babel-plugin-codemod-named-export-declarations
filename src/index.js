@@ -5,74 +5,104 @@ const babelPluginSyntaxTypescript = require('@babel/plugin-syntax-typescript');
 module.exports = babel => {
   const { types: t } = babel;
 
+  const replaceWithExport = (parent, node) => {
+    parent.replaceWith(
+      t.exportNamedDeclaration(parent.node, [
+        t.exportSpecifier(node.id, node.id)
+      ])
+    );
+  };
+
+  const replaceDeclarationWithExport = (path, names) =>
+    !t.isExportNamedDeclaration(path.parent) &&
+    names.includes(path.node.id.name) &&
+    replaceWithExport(path, path.node);
+
   const nestedVisitor = {
-    Identifier(path) {
-      if (path.node.name === this.name && !t.isExportSpecifier(path.parent)) {
-        const exportParent = path.findParent(p => p.isExportNamedDeclaration());
+    ClassDeclaration(path) {
+      replaceDeclarationWithExport(path, this.names);
+    },
 
-        if (exportParent) return;
+    FunctionDeclaration(path) {
+      replaceDeclarationWithExport(path, this.names);
+    },
 
-        if (t.isVariableDeclarator(path.parentPath.node)) {
-          const parent = path.findParent(p => t.isVariableDeclaration(p));
+    TypeAlias(path) {
+      replaceDeclarationWithExport(path, this.names);
+    },
 
-          parent.replaceWith(
-            t.exportNamedDeclaration(parent.node, [
-              t.exportSpecifier(
-                path.parentPath.node.id,
-                path.parentPath.node.id
-              )
-            ])
-          );
-        } else if (
-          t.isClassDeclaration(path.parentPath.node) ||
-          t.isFunctionDeclaration(path.parentPath.node) ||
-          t.isTypeAlias(path.parentPath.node) ||
-          t.isTSEnumDeclaration(path.parentPath.node) ||
-          t.isTSTypeAliasDeclaration(path.parentPath.node) ||
-          t.isTSInterfaceDeclaration(path.parentPath.node)
-        ) {
-          path.parentPath.replaceWith(
-            t.exportNamedDeclaration(path.parentPath.node, [
-              t.exportSpecifier(
-                path.parentPath.node.id,
-                path.parentPath.node.id
-              )
-            ])
-          );
-        }
+    TSEnumDeclaration(path) {
+      replaceDeclarationWithExport(path, this.names);
+    },
+
+    TSTypeAliasDeclaration(path) {
+      replaceDeclarationWithExport(path, this.names);
+    },
+
+    TSInterfaceDeclaration(path) {
+      replaceDeclarationWithExport(path, this.names);
+    },
+
+    VariableDeclaration(path) {
+      const declaratorNode =
+        path.node.declarations.length === 1 && path.node.declarations[0];
+
+      if (
+        !t.isExportNamedDeclaration(path.parent) &&
+        this.names.includes(declaratorNode.id.name)
+      ) {
+        replaceWithExport(path, declaratorNode);
       }
     }
   };
+
+  const isDeclaration = name => node =>
+    t.isVariableDeclaration(node)
+      ? node.declarations.length === 1 &&
+        isDeclaration(name)(node.declarations[0])
+      : (t.isClassDeclaration(node) ||
+          t.isVariableDeclarator(node) ||
+          t.isFunctionDeclaration(node) ||
+          t.isTypeAlias(node) ||
+          t.isTSEnumDeclaration(node) ||
+          t.isTSTypeAliasDeclaration(node) ||
+          t.isTSInterfaceDeclaration(node)) &&
+        node.id.name === name;
 
   return {
     inherits: babelPluginSyntaxTypescript.default,
     visitor: {
       ExportNamedDeclaration: path => {
+        const program = path.findParent(p => p.isProgram());
         const {
           node: { specifiers }
         } = path;
 
+        // Skip export named declarations or clened paths
         if (path.node.isClean || path.node.declaration) return;
 
-        const parsed =
+        const { exported, declarations } =
           specifiers &&
-          specifiers.length &&
-          specifiers.filter(specifier => {
-            if (specifier.local.name === specifier.exported.name) {
-              path
-                .findParent(p => p.isProgram())
-                .traverse(nestedVisitor, { name: specifier.local.name });
+          specifiers.reduce(
+            (memo, specifier) =>
+              specifier.local.name === specifier.exported.name &&
+              program.node.body.some(isDeclaration(specifier.local.name))
+                ? { ...memo, declarations: [...memo.declarations, specifier] }
+                : { ...memo, exported: [...memo.exported, specifier] },
+            { exported: [], declarations: [] }
+          );
 
-              return false;
-            }
-
-            return true;
+        if (declarations && declarations.length) {
+          program.traverse(nestedVisitor, {
+            names: declarations.map(specifier => specifier.local.name)
           });
+        }
 
-        if (parsed && parsed.length) {
+        // Leave only named exports that are renamed or reexported
+        if (exported && exported.length) {
           const newExport = t.exportNamedDeclaration(
             null,
-            parsed.map(specifier =>
+            exported.map(specifier =>
               t.exportSpecifier(specifier.local, specifier.exported)
             )
           );
@@ -83,6 +113,7 @@ module.exports = babel => {
           return;
         }
 
+        // Empty export declaration
         path.remove();
       }
     }
