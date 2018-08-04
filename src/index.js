@@ -6,7 +6,7 @@ module.exports = babel => {
   const replaceWithExport = (parent, node) => {
     parent.replaceWith(
       t.exportNamedDeclaration(parent.node, [
-        t.exportSpecifier(node.id, node.id)
+        t.exportSpecifier(node.id, node.id),
       ])
     );
   };
@@ -51,7 +51,7 @@ module.exports = babel => {
       ) {
         replaceWithExport(path, declaratorNode);
       }
-    }
+    },
   };
 
   const isDeclaration = name => node =>
@@ -68,11 +68,12 @@ module.exports = babel => {
         node.id.name === name;
 
   return {
+    name: 'codemod-named-export-declarations',
     visitor: {
       ExportNamedDeclaration: path => {
         const program = path.findParent(p => p.isProgram());
         const {
-          node: { specifiers }
+          node: { specifiers },
         } = path;
 
         // Skip export named declarations or clened paths
@@ -91,7 +92,7 @@ module.exports = babel => {
 
         if (declarations && declarations.length) {
           program.traverse(nestedVisitor, {
-            names: declarations.map(specifier => specifier.local.name)
+            names: declarations.map(specifier => specifier.local.name),
           });
         }
 
@@ -112,7 +113,7 @@ module.exports = babel => {
 
         // Empty export declaration
         path.remove();
-      }
-    }
+      },
+    },
   };
 };

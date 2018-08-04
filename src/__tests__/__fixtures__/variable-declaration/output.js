@@ -1,0 +1,12 @@
+import qax from 'qax';
+export * from 'foo';
+export { a };
+export { c as d, e };
+export { default as baz };
+export const foo = 'foo';
+export let x;
+x = {};
+const STRING = 'STRING';
+export const bar = 1;
+const A = 'A';
+export { qax, STRING as STRING_CONST, A as default };

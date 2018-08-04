@@ -10,13 +10,33 @@
     "printWidth": 80,
     "eslintIntegration": true,
     "semi": true,
+    "trailingComma": "es5",
     "singleQuote": true
   },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx"
+    ],
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/__tests__/*.{js,ts}"
+    ]
+  },
+  "scripts": {
+    "test": "jest"
+  },
   "peerDependencies": {
-    "@babel/core": "^7.0.0-beta.56"
+    "@babel/core": "^7.0.0"
   },
   "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.56",
+    "@babel/core": "^7.0.0-beta.56",
+    "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^8.2.6",
+    "babel-plugin-tester": "^5.4.0",
     "eslint": "^5.2.0",
     "eslint-config-airbnb-base": "^13.0.0",
     "eslint-config-prettier": "^2.9.0",
@@ -24,6 +44,7 @@
     "eslint-plugin-jest": "^21.18.0",
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-types": "^1.0.2",
+    "jest": "^23.4.2",
     "prettier": "^1.14.0"
   },
   "dependencies": {
