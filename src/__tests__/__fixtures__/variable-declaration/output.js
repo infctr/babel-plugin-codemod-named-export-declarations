@@ -1,8 +1,9 @@
 import qax from 'qax';
 export * from 'foo';
-export { a };
-export { c as d, e };
-export { default as baz };
+export {} from 'bar';
+export { a } from 'b';
+export { c as d, e } from 'f';
+export { default as baz } from 'baz';
 export const foo = 'foo';
 export let x;
 x = {};

@@ -22,4 +22,4 @@ export default class Qax {
   }
 }
 
-export { Foo, Baz as Bazz };
+export { Foo, Baz as Buzz };

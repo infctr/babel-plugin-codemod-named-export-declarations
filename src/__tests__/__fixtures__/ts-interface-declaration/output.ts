@@ -11,4 +11,4 @@ export function func(arg: IFoo): IBar {
   return arg;
 }
 interface Baz extends Readonly<IFoo> {}
-export { Baz as Bazz };
+export { Baz as Buzz };

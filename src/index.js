@@ -72,16 +72,15 @@ module.exports = babel => {
     visitor: {
       ExportNamedDeclaration: path => {
         const program = path.findParent(p => p.isProgram());
-        const {
-          node: { specifiers },
-        } = path;
 
-        // Skip export named declarations or clened paths
-        if (path.node.isClean || path.node.declaration) return;
+        // Skip export named declarations, reexports or cleaned paths
+        if (path.node.isClean || path.node.declaration || path.node.source) {
+          return;
+        }
 
         const { exported, declarations } =
-          specifiers &&
-          specifiers.reduce(
+          path.node.specifiers &&
+          path.node.specifiers.reduce(
             (memo, specifier) =>
               specifier.local.name === specifier.exported.name &&
               program.node.body.some(isDeclaration(specifier.local.name))
